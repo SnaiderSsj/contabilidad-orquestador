@@ -1,0 +1,6 @@
+@contabilidad_orquestador_HostAddress = http://localhost:5087
+
+GET {{contabilidad_orquestador_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

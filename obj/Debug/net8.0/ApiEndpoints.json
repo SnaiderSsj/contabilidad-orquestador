@@ -1,0 +1,149 @@
+[
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetClientes",
+    "RelativePath": "api/Contabilidad/clientes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[ContabilidadOrquestador.Models.Cliente, contabilidad-orquestador, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetDatosReales",
+    "RelativePath": "api/Contabilidad/datos-reales",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetDeudaCliente",
+    "RelativePath": "api/Contabilidad/deuda-cliente/{clienteCi}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "clienteCi",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ContabilidadOrquestador.Models.DeudaClienteResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetFacturas",
+    "RelativePath": "api/Contabilidad/facturas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[ContabilidadOrquestador.Models.Factura, contabilidad-orquestador, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "Health",
+    "RelativePath": "api/Contabilidad/health",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetPagos",
+    "RelativePath": "api/Contabilidad/pagos",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[ContabilidadOrquestador.Models.Pago, contabilidad-orquestador, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.ContabilidadController",
+    "Method": "GetReporteMorosidad",
+    "RelativePath": "api/Contabilidad/reporte-morosidad",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ContabilidadOrquestador.Controllers.DiagnosticoController",
+    "Method": "GetEstructuraDatos",
+    "RelativePath": "api/Diagnostico/estructura-datos",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "contabilidad_orquestador.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[contabilidad_orquestador.WeatherForecast, contabilidad-orquestador, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]
