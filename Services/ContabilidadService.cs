@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿// Services/ContabilidadService.cs
+using System.Text.Json;
 using ContabilidadOrquestador.Models;
 
 namespace ContabilidadOrquestador.Services
@@ -7,39 +8,55 @@ namespace ContabilidadOrquestador.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ContabilidadService> _logger;
-        private readonly string _baseUrl = "https://programacionweb2examen3-production.up.railway.app/api";
+        private readonly string _facturasUrl;
+        private readonly string _pagosUrl;
+        private readonly string _clientesUrl;
 
-        public ContabilidadService(HttpClient httpClient, ILogger<ContabilidadService> logger)
+        public ContabilidadService(HttpClient httpClient, ILogger<ContabilidadService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _logger = logger;
+
+            var baseUrl = configuration["ServiciosExternos:BaseUrl"]
+                          ?? "https://programacionweb2examen3-production.up.railway.app/api";
+
+            _facturasUrl = $"{baseUrl}/Facturas/Listar";
+            _pagosUrl = $"{baseUrl}/Pagos/Listar";
+            _clientesUrl = $"{baseUrl}/Clientes/Listar";
+
+            _logger.LogInformation("URLs configuradas:");
+            _logger.LogInformation($"Facturas: {_facturasUrl}");
+            _logger.LogInformation($"Pagos: {_pagosUrl}");
+            _logger.LogInformation($"Clientes: {_clientesUrl}");
         }
 
         public async Task<List<Factura>> ObtenerTodasFacturas()
         {
             try
             {
-                _logger.LogInformation("Obteniendo todas las facturas...");
-                var response = await _httpClient.GetAsync($"{_baseUrl}/Facturas/Listar");
+                _logger.LogInformation("Obteniendo facturas desde {Url}", _facturasUrl);
+                var response = await _httpClient.GetAsync(_facturasUrl);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation($"Respuesta Facturas: {content}");
-
-                    var facturas = JsonSerializer.Deserialize<List<Factura>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    return facturas ?? new List<Factura>();
+                    _logger.LogWarning("Error HTTP al obtener facturas: {StatusCode}", response.StatusCode);
+                    return new List<Factura>();
                 }
 
-                _logger.LogWarning($"Error al obtener facturas: {response.StatusCode}");
-                return new List<Factura>();
+                var content = await response.Content.ReadAsStringAsync();
+                _logger.LogDebug("Respuesta facturas: {Content}", content.Substring(0, Math.Min(content.Length, 500)));
+
+                var facturas = JsonSerializer.Deserialize<List<Factura>>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                _logger.LogInformation("Facturas deserializadas: {Count}", facturas?.Count ?? 0);
+                return facturas ?? new List<Factura>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo facturas");
+                _logger.LogError(ex, "Excepción al obtener facturas");
                 return new List<Factura>();
             }
         }
@@ -48,27 +65,27 @@ namespace ContabilidadOrquestador.Services
         {
             try
             {
-                _logger.LogInformation("Obteniendo todos los pagos...");
-                var response = await _httpClient.GetAsync($"{_baseUrl}/Pagos/Listar");
+                _logger.LogInformation("Obteniendo pagos desde {Url}", _pagosUrl);
+                var response = await _httpClient.GetAsync(_pagosUrl);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation($"Respuesta Pagos: {content}");
-
-                    var pagos = JsonSerializer.Deserialize<List<Pago>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    return pagos ?? new List<Pago>();
+                    _logger.LogWarning("Error HTTP al obtener pagos: {StatusCode}", response.StatusCode);
+                    return new List<Pago>();
                 }
 
-                _logger.LogWarning($"Error al obtener pagos: {response.StatusCode}");
-                return new List<Pago>();
+                var content = await response.Content.ReadAsStringAsync();
+                var pagos = JsonSerializer.Deserialize<List<Pago>>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                _logger.LogInformation("Pagos deserializados: {Count}", pagos?.Count ?? 0);
+                return pagos ?? new List<Pago>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo pagos");
+                _logger.LogError(ex, "Excepción al obtener pagos");
                 return new List<Pago>();
             }
         }
@@ -77,194 +94,137 @@ namespace ContabilidadOrquestador.Services
         {
             try
             {
-                _logger.LogInformation("Obteniendo todos los clientes...");
-                var response = await _httpClient.GetAsync($"{_baseUrl}/Clientes/Listar");
+                _logger.LogInformation("Obteniendo clientes desde {Url}", _clientesUrl);
+                var response = await _httpClient.GetAsync(_clientesUrl);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation($"Respuesta Clientes: {content}");
-
-                    var clientes = JsonSerializer.Deserialize<List<Cliente>>(content, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    return clientes ?? new List<Cliente>();
+                    _logger.LogWarning("Error HTTP al obtener clientes: {StatusCode}", response.StatusCode);
+                    return new List<Cliente>();
                 }
 
-                _logger.LogWarning($"Error al obtener clientes: {response.StatusCode}");
-                return new List<Cliente>();
+                var content = await response.Content.ReadAsStringAsync();
+                var clientes = JsonSerializer.Deserialize<List<Cliente>>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                _logger.LogInformation("Clientes deserializados: {Count}", clientes?.Count ?? 0);
+                return clientes ?? new List<Cliente>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo clientes");
+                _logger.LogError(ex, "Excepción al obtener clientes");
                 return new List<Cliente>();
             }
         }
 
         public async Task<DeudaClienteResult> CalcularDeudaCliente(string clienteCi)
         {
-            try
+            _logger.LogInformation("Calculando deuda para cliente CI: {Ci}", clienteCi);
+
+            // Validar que el CI sea número (los reales son int)
+            if (!int.TryParse(clienteCi, out int ciInt))
             {
-                _logger.LogInformation($"Calculando deuda para cliente CI: {clienteCi}");
-
-                // Obtener todos los datos
-                var facturasTask = ObtenerTodasFacturas();
-                var pagosTask = ObtenerTodosPagos();
-                var clientesTask = ObtenerTodosClientes();
-
-                await Task.WhenAll(facturasTask, pagosTask, clientesTask);
-
-                var todasFacturas = await facturasTask;
-                var todosPagos = await pagosTask;
-                var todosClientes = await clientesTask;
-
-                // Buscar información del cliente por CI
-                var cliente = todosClientes.FirstOrDefault(c => c.Ci == clienteCi);
-
-                if (cliente == null)
-                {
-                    throw new Exception($"Cliente con CI {clienteCi} no encontrado");
-                }
-
-                // Filtrar por cliente CI
-                var facturasCliente = todasFacturas.Where(f => f.ClienteCi == clienteCi).ToList();
-
-                // Para pagos, necesitamos buscar las facturas asociadas
-                var pagosCliente = new List<Pago>();
-                foreach (var pago in todosPagos)
-                {
-                    var facturaAsociada = todasFacturas.FirstOrDefault(f => f.Codigo == pago.FacturaCodigo);
-                    if (facturaAsociada?.ClienteCi == clienteCi)
-                    {
-                        pagosCliente.Add(pago);
-                    }
-                }
-
-                // Calcular métricas
-                var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
-                var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
-                var deudaActual = totalFacturado - totalPagado;
-
-                // Determinar estado de deuda
-                var estadoDeuda = deudaActual switch
-                {
-                    <= 0 => "Al día",
-                    > 0 and <= 1000 => "En observación",
-                    _ => "Moroso"
-                };
-
-                return new DeudaClienteResult
-                {
-                    ClienteCi = clienteCi,
-                    NombreCliente = cliente.Nombre,
-                    CategoriaCliente = cliente.Categoria,
-                    TotalFacturado = totalFacturado,
-                    TotalPagado = totalPagado,
-                    DeudaActual = deudaActual,
-                    EstadoDeuda = estadoDeuda,
-                    CantidadFacturas = facturasCliente.Count,
-                    CantidadPagos = pagosCliente.Count,
-                    FechaCalculo = DateTime.UtcNow,
-                    Facturas = facturasCliente,
-                    Pagos = pagosCliente
-                };
+                throw new ArgumentException("El CI debe ser un número válido");
             }
-            catch (Exception ex)
+
+            var (facturas, pagos, clientes) = await ObtenerDatosParalelo();
+
+            var cliente = clientes.FirstOrDefault(c => c.Ci == clienteCi);
+            if (cliente == null)
+                throw new KeyNotFoundException($"Cliente con CI {clienteCi} no encontrado");
+
+            var facturasCliente = facturas.Where(f => f.ClienteCiInt == ciInt).ToList();
+
+            var pagosCliente = pagos
+                .Where(p => facturas.Any(f => f.Codigo == p.FacturaCodigo && f.ClienteCiInt == ciInt))
+                .ToList();
+
+            var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
+            var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
+            var deudaActual = totalFacturado - totalPagado;
+
+            var estadoDeuda = deudaActual <= 0 ? "Al día" :
+                              deudaActual <= 1000 ? "En observación" : "Moroso";
+
+            return new DeudaClienteResult
             {
-                _logger.LogError(ex, $"Error calculando deuda para cliente CI: {clienteCi}");
-                throw;
-            }
+                ClienteCi = clienteCi,
+                NombreCliente = cliente.Nombre,
+                CategoriaCliente = cliente.Categoria,
+                TotalFacturado = totalFacturado,
+                TotalPagado = totalPagado,
+                DeudaActual = deudaActual,
+                EstadoDeuda = estadoDeuda,
+                CantidadFacturas = facturasCliente.Count,
+                CantidadPagos = pagosCliente.Count,
+                FechaCalculo = DateTime.UtcNow,
+                Facturas = facturasCliente,
+                Pagos = pagosCliente
+            };
         }
 
         public async Task<object> GenerarReporteMorosidad()
         {
-            try
+            var (facturas, pagos, clientes) = await ObtenerDatosParalelo();
+
+            var reporte = clientes.Select(cliente =>
             {
-                _logger.LogInformation("Generando reporte de morosidad...");
+                int ciInt = int.TryParse(cliente.Ci, out var ci) ? ci : 0;
+                var facturasCliente = facturas.Where(f => f.ClienteCiInt == ciInt).ToList();
+                var pagosCliente = pagos
+                    .Where(p => facturas.Any(f => f.Codigo == p.FacturaCodigo && f.ClienteCiInt == ciInt))
+                    .ToList();
 
-                var facturasTask = ObtenerTodasFacturas();
-                var pagosTask = ObtenerTodosPagos();
-                var clientesTask = ObtenerTodosClientes();
+                var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
+                var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
+                var deuda = totalFacturado - totalPagado;
 
-                await Task.WhenAll(facturasTask, pagosTask, clientesTask);
-
-                var todasFacturas = await facturasTask;
-                var todosPagos = await pagosTask;
-                var todosClientes = await clientesTask;
-
-                // Calcular deuda por cliente
-                var deudaPorCliente = new List<object>();
-
-                foreach (var cliente in todosClientes)
-                {
-                    var facturasCliente = todasFacturas.Where(f => f.ClienteCi == cliente.Ci).ToList();
-
-                    var pagosCliente = new List<Pago>();
-                    foreach (var pago in todosPagos)
-                    {
-                        var facturaAsociada = todasFacturas.FirstOrDefault(f => f.Codigo == pago.FacturaCodigo);
-                        if (facturaAsociada?.ClienteCi == cliente.Ci)
-                        {
-                            pagosCliente.Add(pago);
-                        }
-                    }
-
-                    var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
-                    var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
-                    var deuda = totalFacturado - totalPagado;
-
-                    var estado = deuda switch
-                    {
-                        <= 0 => "Al día",
-                        > 0 and <= 1000 => "En observación",
-                        _ => "Moroso"
-                    };
-
-                    deudaPorCliente.Add(new
-                    {
-                        ClienteCi = cliente.Ci,
-                        NombreCliente = cliente.Nombre,
-                        Categoria = cliente.Categoria,
-                        TotalFacturado = totalFacturado,
-                        TotalPagado = totalPagado,
-                        Deuda = deuda,
-                        Estado = estado,
-                        CantidadFacturas = facturasCliente.Count
-                    });
-                }
-
-                var clientesMorosos = deudaPorCliente.Where(c => ((dynamic)c).Estado == "Moroso").ToList();
-                var clientesObservacion = deudaPorCliente.Where(c => ((dynamic)c).Estado == "En observación").ToList();
+                var estado = deuda <= 0 ? "Al día" :
+                             deuda <= 1000 ? "En observación" : "Moroso";
 
                 return new
                 {
-                    FechaGeneracion = DateTime.UtcNow,
-                    TotalClientes = deudaPorCliente.Count,
-                    TotalDeudaGeneral = deudaPorCliente.Sum(c => (decimal)((dynamic)c).Deuda),
-                    ResumenEstados = new
-                    {
-                        AlDia = deudaPorCliente.Count(c => ((dynamic)c).Estado == "Al día"),
-                        EnObservacion = clientesObservacion.Count,
-                        Morosos = clientesMorosos.Count
-                    },
-                    TopClientesMorosos = clientesMorosos.Take(10),
-                    DeudaPorCliente = deudaPorCliente,
-                    MetricasGenerales = new
-                    {
-                        TotalFacturado = todasFacturas.Sum(f => f.MontoTotal),
-                        TotalPagado = todosPagos.Sum(p => p.MontoPagado),
-                        TotalFacturas = todasFacturas.Count,
-                        TotalPagos = todosPagos.Count,
-                        TotalClientesRegistrados = todosClientes.Count
-                    }
+                    ClienteCi = cliente.Ci,
+                    NombreCliente = cliente.Nombre,
+                    Categoria = cliente.Categoria,
+                    TotalFacturado = totalFacturado,
+                    TotalPagado = totalPagado,
+                    Deuda = deuda,
+                    Estado = estado,
+                    CantidadFacturas = facturasCliente.Count
                 };
-            }
-            catch (Exception ex)
+            }).ToList();
+
+            var morosos = reporte.Where(r => r.Estado == "Moroso").Cast<dynamic>().ToList();
+
+            return new
             {
-                _logger.LogError(ex, "Error generando reporte de morosidad");
-                throw;
-            }
+                FechaGeneracion = DateTime.UtcNow,
+                TotalClientes = clientes.Count,
+                TotalDeudaGeneral = reporte.Sum(r => r.Deuda),
+                ResumenEstados = new
+                {
+                    AlDia = reporte.Count(r => r.Estado == "Al día"),
+                    EnObservacion = reporte.Count(r => r.Estado == "En observación"),
+                    Morosos = morosos.Count
+                },
+                Top5Morosos = morosos.OrderByDescending(m => m.Deuda).Take(5),
+                DetalleCompleto = reporte
+            };
+        }
+
+        // Método auxiliar para traer todo en paralelo (más rápido)
+        private async Task<(List<Factura> facturas, List<Pago> pagos, List<Cliente> clientes)> ObtenerDatosParalelo()
+        {
+            var facturasTask = ObtenerTodasFacturas();
+            var pagosTask = ObtenerTodosPagos();
+            var clientesTask = ObtenerTodosClientes();
+
+            await Task.WhenAll(facturasTask, pagosTask, clientesTask);
+
+            return (await facturasTask, await pagosTask, await clientesTask);
         }
     }
 }

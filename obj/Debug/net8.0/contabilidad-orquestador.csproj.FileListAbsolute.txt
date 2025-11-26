@@ -41,3 +41,4 @@ C:\Users\IT\Music\contabilidad-orquestador\obj\Debug\net8.0\refint\contabilidad-
 C:\Users\IT\Music\contabilidad-orquestador\obj\Debug\net8.0\contabilidad-orquestador.pdb
 C:\Users\IT\Music\contabilidad-orquestador\obj\Debug\net8.0\contabilidad-orquestador.genruntimeconfig.cache
 C:\Users\IT\Music\contabilidad-orquestador\obj\Debug\net8.0\ref\contabilidad-orquestador.dll
+C:\Users\IT\Music\contabilidad-orquestador\obj\Debug\net8.0\contabilidad-orquestador.sourcelink.json

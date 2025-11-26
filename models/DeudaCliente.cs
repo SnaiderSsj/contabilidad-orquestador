@@ -1,4 +1,6 @@
-﻿namespace ContabilidadOrquestador.Models
+﻿using System.ComponentModel.DataAnnotations.Schema; // Para Column(TypeName)
+
+namespace ContabilidadOrquestador.Models
 {
     public class DeudaClienteResult
     {
@@ -19,9 +21,25 @@
     public class Factura
     {
         public int Codigo { get; set; }
-        public string ClienteCi { get; set; }
-        public DateTime Fecha { get; set; }
-        public decimal MontoTotal { get; set; }
+        [Column(TypeName = "int")] // Fuerza int para clienteCi
+        public int ClienteCiInt { get; set; } // Temporal para deserializar
+        [NotMapped] // No se mapea a DB, solo para runtime
+        public string ClienteCi
+        {
+            get => ClienteCiInt.ToString();
+            set => ClienteCiInt = int.TryParse(value, out var ci) ? ci : 0;
+        }
+
+        public string Fecha { get; set; } // String como llega
+        [Column(TypeName = "int")] // Fuerza int
+        public int MontoTotalInt { get; set; }
+        [NotMapped]
+        public decimal MontoTotal
+        {
+            get => MontoTotalInt;
+            set => MontoTotalInt = (int)value;
+        }
+
         public bool Pagada { get; set; }
     }
 
@@ -29,8 +47,8 @@
     {
         public int Codigo { get; set; }
         public int FacturaCodigo { get; set; }
-        public DateTime FechaPago { get; set; }
-        public decimal MontoPagado { get; set; }
+        public string FechaPago { get; set; } // String como llega
+        public decimal MontoPagado { get; set; } // Ya es decimal, pero confirma en deserialización
     }
 
     public class Cliente

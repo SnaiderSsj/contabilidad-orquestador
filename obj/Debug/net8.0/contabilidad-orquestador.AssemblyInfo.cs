@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("contabilidad-orquestador")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+62e46144a7144f1e0f1cf5c3814335eebd844ac8")]
 [assembly: System.Reflection.AssemblyProductAttribute("contabilidad-orquestador")]
 [assembly: System.Reflection.AssemblyTitleAttribute("contabilidad-orquestador")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

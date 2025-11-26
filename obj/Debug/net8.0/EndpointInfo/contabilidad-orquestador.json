@@ -333,13 +333,21 @@
             "type": "integer",
             "format": "int32"
           },
+          "clienteCiInt": {
+            "type": "integer",
+            "format": "int32"
+          },
           "clienteCi": {
             "type": "string",
             "nullable": true
           },
           "fecha": {
             "type": "string",
-            "format": "date-time"
+            "nullable": true
+          },
+          "montoTotalInt": {
+            "type": "integer",
+            "format": "int32"
           },
           "montoTotal": {
             "type": "number",
@@ -364,7 +372,7 @@
           },
           "fechaPago": {
             "type": "string",
-            "format": "date-time"
+            "nullable": true
           },
           "montoPagado": {
             "type": "number",
