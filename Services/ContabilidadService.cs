@@ -120,51 +120,44 @@ namespace ContabilidadOrquestador.Services
         }
 
         public async Task<DeudaClienteResult> CalcularDeudaCliente(string clienteCi)
-        {
-            _logger.LogInformation("Calculando deuda para cliente CI: {Ci}", clienteCi);
+{
+    if (!int.TryParse(clienteCi, out int ciInt))
+        throw new ArgumentException("CI debe ser numérico");
 
-            // Validar que el CI sea número (los reales son int)
-            if (!int.TryParse(clienteCi, out int ciInt))
-            {
-                throw new ArgumentException("El CI debe ser un número válido");
-            }
+    var (facturas, pagos, clientes) = await ObtenerDatosParalelo();
 
-            var (facturas, pagos, clientes) = await ObtenerDatosParalelo();
+    var cliente = clientes.FirstOrDefault(c => c.Ci == clienteCi)
+                  ?? throw new KeyNotFoundException($"Cliente {clienteCi} no encontrado");
 
-            var cliente = clientes.FirstOrDefault(c => c.Ci == clienteCi);
-            if (cliente == null)
-                throw new KeyNotFoundException($"Cliente con CI {clienteCi} no encontrado");
+    var facturasCliente = facturas.Where(f => f.ClienteCi == ciInt).ToList();
 
-            var facturasCliente = facturas.Where(f => f.ClienteCiInt == ciInt).ToList();
+    var pagosCliente = pagos
+        .Where(p => facturas.Any(f => f.Codigo == p.FacturaCodigo && f.ClienteCi == ciInt))
+        .ToList();
 
-            var pagosCliente = pagos
-                .Where(p => facturas.Any(f => f.Codigo == p.FacturaCodigo && f.ClienteCiInt == ciInt))
-                .ToList();
+    var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
+    var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
+    var deuda = totalFacturado - totalPagado;
 
-            var totalFacturado = facturasCliente.Sum(f => f.MontoTotal);
-            var totalPagado = pagosCliente.Sum(p => p.MontoPagado);
-            var deudaActual = totalFacturado - totalPagado;
+    var estado = deuda <= 0 ? "Al día" :
+                 deuda <= 1000 ? "En observación" : "Moroso";
 
-            var estadoDeuda = deudaActual <= 0 ? "Al día" :
-                              deudaActual <= 1000 ? "En observación" : "Moroso";
-
-            return new DeudaClienteResult
-            {
-                ClienteCi = clienteCi,
-                NombreCliente = cliente.Nombre,
-                CategoriaCliente = cliente.Categoria,
-                TotalFacturado = totalFacturado,
-                TotalPagado = totalPagado,
-                DeudaActual = deudaActual,
-                EstadoDeuda = estadoDeuda,
-                CantidadFacturas = facturasCliente.Count,
-                CantidadPagos = pagosCliente.Count,
-                FechaCalculo = DateTime.UtcNow,
-                Facturas = facturasCliente,
-                Pagos = pagosCliente
-            };
-        }
-
+    return new DeudaClienteResult
+    {
+        ClienteCi = clienteCi,
+        NombreCliente = cliente.Nombre,
+        CategoriaCliente = cliente.Categoria,
+        TotalFacturado = totalFacturado,
+        TotalPagado = totalPagado,
+        DeudaActual = deuda,
+        EstadoDeuda = estado,
+        CantidadFacturas = facturasCliente.Count,
+        CantidadPagos = pagosCliente.Count,
+        FechaCalculo = DateTime.UtcNow,
+        Facturas = facturasCliente,
+        Pagos = pagosCliente
+    };
+}
         public async Task<object> GenerarReporteMorosidad()
         {
             var (facturas, pagos, clientes) = await ObtenerDatosParalelo();
